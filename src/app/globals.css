@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-cream: #faf7f2;
+  --color-cream-dark: #f0ebe3;
+  --color-rose: #c4777b;
+  --color-rose-dark: #b85c60;
+  --color-sage: #7a9e7e;
+  --color-charcoal: #2d2a26;
+  --color-muted: #6b6560;
+  --font-display: var(--font-playfair);
+  --font-body: var(--font-dm-sans);
+}
+
+body {
+  background: linear-gradient(180deg, var(--color-cream) 0%, var(--color-cream-dark) 100%);
+  color: var(--color-charcoal);
+  font-family: var(--font-body), system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), Georgia, serif;
+}
