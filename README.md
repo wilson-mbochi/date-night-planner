@@ -29,6 +29,22 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) and try a location like `Austin, TX` or `10001`.
 
+## Local development tips
+
+Only **one** dev server should run at a time. If the app acts strangely, the wrong port opens, or you see errors like `Cannot find module './331.js'`, use a clean restart:
+
+```powershell
+npm run dev:clean
+```
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start dev server on port 3000 |
+| `npm run dev:clean` | Stop stale servers, clear `.next`, then start dev |
+| `npm run dev:stop` | Free ports 3000–3010 (stops old Next.js processes) |
+
+**Why old processes stick around:** each `npm run dev` starts a Node process that keeps running until stopped. Background terminals in Cursor (or starting dev multiple times) can leave several servers on ports 3000, 3002, 3003, etc. Run `npm run dev:stop` before closing Cursor, or use `dev:clean` when in doubt.
+
 ## Deploy to GitHub + Vercel
 
 See **[docs/DEPLOY.md](docs/DEPLOY.md)** for pushing to GitHub and deploying on Vercel.
@@ -64,7 +80,9 @@ After the host configures the API key, visitors will see a toggle on the Setting
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start development server |
+| `npm run dev` | Start development server (port 3000) |
+| `npm run dev:clean` | Stop stale servers, clear cache, start dev |
+| `npm run dev:stop` | Stop processes on ports 3000–3010 |
 | `npm run build` | Production build |
 | `npm run start` | Start production server |
 | `npm run lint` | Run ESLint |

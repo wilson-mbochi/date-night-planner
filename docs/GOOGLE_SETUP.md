@@ -48,3 +48,23 @@ PLACES_PROVIDER=google
 Restart the dev server (`npm run dev`), then open **Settings** in the app to switch to Google Places.
 
 **Do not commit `.env.local` or share your API key.**
+
+## Troubleshooting "No spots found" with Google
+
+This app calls Google **from the server** (API routes), not from the browser.
+
+| Problem | Fix |
+|---------|-----|
+| API key not valid | Create a new key in [Credentials](https://console.cloud.google.com/apis/credentials) |
+| Places API not enabled | Enable [Places API (New)](https://console.cloud.google.com/apis/library/places.googleapis.com) |
+| HTTP referrer restriction | Set **Application restrictions** to **None** (referrer rules break server-side calls) |
+| Billing not linked | Attach billing in Google Cloud |
+| On Vercel | Add `GOOGLE_PLACES_API_KEY` and `PLACES_PROVIDER=google` in Vercel → Settings → Environment Variables, then redeploy |
+
+Re-enter your key:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/setup-google.ps1
+```
+
+Then restart the dev server and search again. You should now see a specific error message if Google still rejects the key.

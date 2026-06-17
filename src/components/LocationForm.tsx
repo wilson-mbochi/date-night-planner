@@ -108,7 +108,11 @@ export function LocationForm() {
         <div className="mt-12">
           <EmptyState
             title="No spots found nearby"
-            message="Not many places are mapped in this area yet. Try a nearby city or a different zip code."
+            message={
+              activeProvider === "google"
+                ? "Google Places returned no results for this area. Try a larger city, switch to OpenStreetMap in Settings, or check that your API key is valid."
+                : "Not many places are mapped in this area yet. Try a nearby city or a different zip code."
+            }
           />
         </div>
       )}

@@ -41,13 +41,15 @@ if ([string]::IsNullOrWhiteSpace($plainKey)) {
     exit 1
 }
 
+$plainKey = $plainKey.Trim()
+
 $content = @"
 # Google Places API — configured by setup-google.ps1
 GOOGLE_PLACES_API_KEY=$plainKey
 PLACES_PROVIDER=google
 "@
 
-Set-Content -Path $envFile -Value $content -Encoding UTF8 -NoNewline
+Set-Content -Path $envFile -Value $content -Encoding utf8
 Write-Host ""
 Write-Host "Wrote $envFile" -ForegroundColor Green
 Write-Host ""

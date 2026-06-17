@@ -26,6 +26,21 @@ interface GooglePlace {
   types?: string[];
 }
 
+interface GoogleErrorBody {
+  error?: {
+    message?: string;
+    status?: string;
+  };
+}
+
+function getApiKey(): string {
+  const key = process.env.GOOGLE_PLACES_API_KEY?.trim();
+  if (!key) {
+    throw new Error("Google Places API key not configured");
+  }
+  return key;
+}
+
 function mapGoogleCategory(place: GooglePlace): VenueCategory {
   const primary = place.primaryType ?? place.types?.[0] ?? "";
   return GOOGLE_TYPE_TO_CATEGORY[primary] ?? "default";
@@ -33,6 +48,17 @@ function mapGoogleCategory(place: GooglePlace): VenueCategory {
 
 function buildPhotoUrl(photoName: string, apiKey: string): string {
   return `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=400&key=${apiKey}`;
+}
+
+async function parseGoogleError(response: Response): Promise<string> {
+  try {
+    const body = (await response.json()) as GoogleErrorBody;
+    const message = body.error?.message;
+    if (message) return message;
+  } catch {
+    // ignore JSON parse errors
+  }
+  return `Google Places API error (${response.status})`;
 }
 
 const SEARCH_QUERIES = [
@@ -47,10 +73,7 @@ export async function getGooglePlaces(
   lng: number,
   radius = 5000
 ): Promise<Venue[]> {
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-  if (!apiKey) {
-    throw new Error("Google Places API key not configured");
-  }
+  const apiKey = getApiKey();
 
   const fieldMask = [
     "places.id",
@@ -66,6 +89,7 @@ export async function getGooglePlaces(
 
   const seen = new Set<string>();
   const venues: Venue[] = [];
+  let lastError: string | null = null;
 
   for (const textQuery of SEARCH_QUERIES) {
     const response = await fetch(
@@ -82,7 +106,7 @@ export async function getGooglePlaces(
           locationBias: {
             circle: {
               center: { latitude: lat, longitude: lng },
-              radius,
+              radius: Math.min(radius, 50000),
             },
           },
           maxResultCount: 8,
@@ -90,7 +114,11 @@ export async function getGooglePlaces(
       }
     );
 
-    if (!response.ok) continue;
+    if (!response.ok) {
+      lastError = await parseGoogleError(response);
+      console.error(`Google Places search failed for "${textQuery}":`, lastError);
+      continue;
+    }
 
     const data = (await response.json()) as { places?: GooglePlace[] };
     for (const place of data.places ?? []) {
@@ -118,6 +146,14 @@ export async function getGooglePlaces(
 
       if (venues.length >= 24) return venues;
     }
+  }
+
+  if (venues.length === 0 && lastError) {
+    const hint =
+      lastError.includes("API key") || lastError.includes("API_KEY")
+        ? " Check that Places API (New) is enabled, billing is active, and your key has no HTTP referrer restriction (server-side calls need Application restrictions set to None)."
+        : "";
+    throw new Error(`${lastError}.${hint}`);
   }
 
   return venues;
