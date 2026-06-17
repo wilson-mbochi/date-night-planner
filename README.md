@@ -29,6 +29,10 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) and try a location like `Austin, TX` or `10001`.
 
+## Deploy to GitHub + Vercel
+
+See **[docs/DEPLOY.md](docs/DEPLOY.md)** for pushing to GitHub and deploying on Vercel.
+
 ## Settings & Google Places upgrade
 
 Open **Settings** in the app header (or footer link) to see your current data source and compare options.
